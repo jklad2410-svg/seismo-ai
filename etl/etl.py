@@ -2,9 +2,9 @@ import os
 import requests
 import psycopg2
 from psycopg2.extras import execute_values
-from datetime import datetime
+from datetime import datetime, timezone
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:your_neon_password@ep-cold-dawn-123456.us-east-2.aws.neon.tech/neondb?sslmode=require")
+DATABASE_URL = os.getenv("DATABASE_URL")
 USGS_URL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson"
 
 def classify_earthquake(mag, depth, tsunami):
@@ -18,7 +18,7 @@ def classify_earthquake(mag, depth, tsunami):
         return "NORMAL MONITOR"
 
 def run_etl():
-    print(f"[{datetime.utcnow()}] Starting SeismoAI Telemetry Sync...")
+    print(f"[{datetime.now(timezone.utc)}] Starting SeismoAI Telemetry Sync...")
     response = requests.get(USGS_URL)
     if response.status_code != 200:
         print(f"Failed to fetch USGS feed: {response.status_code}")

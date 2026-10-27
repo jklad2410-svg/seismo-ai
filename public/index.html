@@ -1,11 +1,15 @@
+```html
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SeismoAI // Global Seismic Threat Intelligence</title>
+    <meta name="theme-color" content="#030712">
+    <title>SeismoAI // Global Seismic Intelligence</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -13,12 +17,12 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
-                        orbitron: ['Orbitron', 'sans-serif'],
+                        orbitron: ['Orbitron', 'sans-serif']
                     },
                     colors: {
                         cyber: {
                             dark: '#030712',
-                            card: '#0b0f19',
+                            card: '#080d19',
                             border: '#1e293b',
                             cyan: '#06b6d4',
                             neon: '#39ff14',
@@ -27,147 +31,993 @@
                     }
                 }
             }
-        }
+        };
     </script>
+
     <style>
-        .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); }
-        .glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
-        @keyframes pulse-slow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+        :root {
+            --cyan: #06b6d4;
+            --green: #34d399;
+            --bg: #030712;
         }
-        .animate-pulse-slow { animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .ambient {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            overflow: hidden;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse at 15% 10%, rgba(6,182,212,.10), transparent 38%),
+                radial-gradient(ellipse at 85% 45%, rgba(16,185,129,.06), transparent 35%),
+                #030712;
+        }
+
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(6,182,212,.055) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6,182,212,.055) 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: linear-gradient(to bottom, black, transparent 90%);
+            animation: gridDrift 24s linear infinite;
+        }
+
+        .orb {
+            position: absolute;
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: .12;
+            animation: floatOrb 14s ease-in-out infinite alternate;
+        }
+
+        .orb-one {
+            background: #06b6d4;
+            top: 5%;
+            left: -180px;
+        }
+
+        .orb-two {
+            background: #10b981;
+            top: 45%;
+            right: -180px;
+            animation-delay: -7s;
+        }
+
+        .scanline {
+            position: fixed;
+            top: -20%;
+            left: 0;
+            right: 0;
+            height: 120px;
+            pointer-events: none;
+            z-index: 20;
+            background: linear-gradient(
+                to bottom,
+                transparent,
+                rgba(6,182,212,.025),
+                transparent
+            );
+            animation: scan 12s linear infinite;
+        }
+
+        /* Header */
+        .glass-header {
+            background: rgba(3,7,18,.78);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(30,41,59,.8);
+        }
+
+        .brand-glow {
+            text-shadow: 0 0 24px rgba(6,182,212,.35);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #34d399;
+            box-shadow: 0 0 12px rgba(52,211,153,.9);
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        /* Cards */
+        .metric-card {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            background: linear-gradient(145deg, rgba(11,17,32,.96), rgba(5,10,22,.97));
+            border: 1px solid rgba(51,65,85,.7);
+            border-radius: 16px;
+            padding: 23px;
+            transition: transform .35s ease, border-color .35s ease,
+                        box-shadow .35s ease;
+            animation: riseIn .7s ease both;
+        }
+
+        .metric-card:nth-child(2) { animation-delay: .08s; }
+        .metric-card:nth-child(3) { animation-delay: .16s; }
+        .metric-card:nth-child(4) { animation-delay: .24s; }
+
+        .metric-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            opacity: .55;
+            background: radial-gradient(
+                circle at var(--mx, 50%) var(--my, 50%),
+                var(--glow, rgba(6,182,212,.13)),
+                transparent 60%
+            );
+            transition: opacity .3s ease;
+        }
+
+        .metric-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -120%;
+            width: 70%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: borderShimmer 6s ease-in-out infinite;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent);
+            box-shadow: 0 15px 45px rgba(0,0,0,.25),
+                        0 0 25px var(--glow);
+        }
+
+        .metric-card:hover::before { opacity: 1; }
+
+        .metric-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--icon-bg);
+            color: var(--accent);
+            border: 1px solid var(--icon-border);
+        }
+
+        .metric-value {
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -1px;
+            transition: color .25s ease;
+        }
+
+        .metric-value.updated {
+            animation: numberFlash .6s ease;
+        }
+
+        /* Radar */
+        .radar {
+            position: relative;
+            width: 46px;
+            height: 46px;
+            border: 1px solid rgba(6,182,212,.45);
+            border-radius: 50%;
+            overflow: hidden;
+            background: repeating-radial-gradient(
+                circle,
+                transparent 0 8px,
+                rgba(6,182,212,.16) 9px 10px
+            );
+            flex-shrink: 0;
+        }
+
+        .radar::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                rgba(6,182,212,.3) 50deg,
+                transparent 85deg
+            );
+            animation: radarSpin 3s linear infinite;
+        }
+
+        .radar::after {
+            content: "";
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #67e8f9;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #06b6d4;
+        }
+
+        /* Buttons */
+        .refresh-btn {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(6,182,212,.4);
+            background: rgba(6,182,212,.08);
+            transition: background .25s, box-shadow .25s, transform .25s;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(6,182,212,.17);
+            box-shadow: 0 0 24px rgba(6,182,212,.12);
+            transform: translateY(-1px);
+        }
+
+        .refresh-btn:active { transform: scale(.97); }
+
+        .refresh-btn.loading .refresh-icon {
+            animation: spin .8s linear infinite;
+        }
+
+        /* Table */
+        .table-shell {
+            background: rgba(8,13,25,.94);
+            border: 1px solid rgba(30,41,59,.9);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 25px 80px rgba(0,0,0,.24);
+            animation: riseIn .8s .2s ease both;
+        }
+
+        .table-head {
+            background: linear-gradient(90deg, rgba(15,23,42,.8), rgba(8,13,25,.9));
+        }
+
+        #earthquake-table-body tr {
+            animation: rowReveal .4s ease both;
+            transition: background .2s ease;
+        }
+
+        #earthquake-table-body tr:hover {
+            background: rgba(6,182,212,.045);
+        }
+
+        .classification {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: 1px solid;
+            border-radius: 6px;
+            padding: 6px 9px;
+            font-size: 10px;
+            letter-spacing: .035em;
+            white-space: nowrap;
+        }
+
+        .classification::before {
+            content: "";
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .critical {
+            color: #f87171;
+            border-color: rgba(239,68,68,.35);
+            background: rgba(127,29,29,.23);
+        }
+
+        .critical::before {
+            animation: statusPulse 1.2s infinite;
+            box-shadow: 0 0 8px #ef4444;
+        }
+
+        .warning {
+            color: #fbbf24;
+            border-color: rgba(245,158,11,.3);
+            background: rgba(120,53,15,.2);
+        }
+
+        .elevated {
+            color: #67e8f9;
+            border-color: rgba(6,182,212,.3);
+            background: rgba(8,51,68,.35);
+        }
+
+        .normal {
+            color: #94a3b8;
+            border-color: rgba(100,116,139,.3);
+            background: rgba(30,41,59,.35);
+        }
+
+        .magnitude {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-weight: 700;
+        }
+
+        .mag-bar {
+            height: 4px;
+            width: 35px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #1e293b;
+        }
+
+        .mag-bar span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            animation: barGrow .7s ease both;
+        }
+
+        /* Connection badge */
+        .connection-badge {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border: 1px solid rgba(52,211,153,.17);
+            border-radius: 7px;
+            padding: 9px 12px;
+            background: rgba(16,185,129,.045);
+            font-size: 10px;
+            letter-spacing: .06em;
+            white-space: nowrap;
+        }
+
+        .connection-badge.offline {
+            border-color: rgba(239,68,68,.3);
+            background: rgba(127,29,29,.15);
+            color: #f87171;
+        }
+
+        /* Loading animation */
+        .loader {
+            width: 26px;
+            height: 26px;
+            border: 2px solid rgba(6,182,212,.15);
+            border-top-color: #06b6d4;
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        .section-label {
+            color: #64748b;
+            font-size: 10px;
+            letter-spacing: .13em;
+            text-transform: uppercase;
+        }
+
+        .footer-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #164e63, transparent);
+        }
+
+        /* Animations */
+        @keyframes radarSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .4; }
+        }
+
+        @keyframes gridDrift {
+            from { transform: translateY(0); }
+            to { transform: translateY(48px); }
+        }
+
+        @keyframes floatOrb {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(70px, 40px) scale(1.15); }
+        }
+
+        @keyframes scan {
+            from { transform: translateY(0); }
+            to { transform: translateY(120vh); }
+        }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes rowReveal {
+            from { opacity: 0; transform: translateY(7px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes numberFlash {
+            0% { opacity: .5; }
+            50% { opacity: 1; text-shadow: 0 0 18px currentColor; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes borderShimmer {
+            0%, 70%, 100% { left: -120%; }
+            85% { left: 140%; }
+        }
+
+        @keyframes barGrow {
+            from { width: 0; }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .metric-card { padding: 17px; }
+            .metric-value { font-size: 26px; }
+            .radar { width: 38px; height: 38px; }
+            .connection-badge { padding: 7px 9px; }
+        }
     </style>
 </head>
-<body class="bg-cyber-dark text-slate-100 min-h-screen font-sans selection:bg-cyan-500 selection:text-black">
+
+<body class="min-h-screen font-sans selection:bg-cyan-400 selection:text-black">
+
+    <!-- Ambient animated background -->
+    <div class="ambient" aria-hidden="true">
+        <div class="grid-bg"></div>
+        <div class="orb orb-one"></div>
+        <div class="orb orb-two"></div>
+    </div>
+    <div class="scanline" aria-hidden="true"></div>
+
     <!-- Header -->
-    <header class="border-b border-cyber-border bg-cyber-card/50 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="w-3 h-3 bg-cyan-400 rounded-full animate-ping"></div>
-                <h1 class="font-orbitron font-extrabold text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
-                    SEISMO<span class="text-white">AI</span>
-                </h1>
-                <span class="text-xs px-2 py-0.5 rounded border border-cyan-500/30 text-cyan-400 font-mono">v1.0.0-CORE</span>
+    <header class="glass-header sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-4">
+
+            <div class="flex items-center gap-3">
+                <div class="radar" aria-hidden="true"></div>
+
+                <div>
+                    <h1 class="font-orbitron font-extrabold text-xl sm:text-2xl tracking-wider brand-glow">
+                        <span class="text-cyan-400">SEISMO</span><span class="text-white">AI</span>
+                    </h1>
+                    <p class="section-label mt-1">Global Seismic Intelligence</p>
+                </div>
+
+                <span class="hidden sm:inline-block text-[10px] px-2 py-1 rounded border border-cyan-500/30 text-cyan-400 font-mono">
+                    v2.0.0
+                </span>
             </div>
-            <div class="flex items-center space-x-4">
-                <div id="connection-status" class="flex items-center space-x-2 text-xs font-mono text-emerald-400">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>NEURAL LINK ACTIVE</span>
+
+            <div class="flex items-center gap-3">
+                <div id="connection-status" class="connection-badge text-emerald-400" role="status" aria-live="polite">
+                    <span class="status-dot"></span>
+                    <span id="connection-label">CONNECTING TO API</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <!-- Telemetry Metrics Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-cyber-card border border-cyber-border rounded-xl p-5 glow-cyan">
-                <p class="text-xs font-mono text-slate-400">TOTAL MONITORED EVENTS</p>
-                <h3 id="stat-total" class="text-3xl font-orbitron font-bold mt-2 text-cyan-400">--</h3>
-            </div>
-            <div class="bg-cyber-card border border-cyber-border rounded-xl p-5 glow-cyan">
-                <p class="text-xs font-mono text-slate-400">MEAN MAGNITUDE</p>
-                <h3 id="stat-avg" class="text-3xl font-orbitron font-bold mt-2 text-emerald-400">--</h3>
-            </div>
-            <div class="bg-cyber-card border border-cyber-border rounded-xl p-5 glow-cyan">
-                <p class="text-xs font-mono text-slate-400">PEAK MAGNITUDE</p>
-                <h3 id="stat-max" class="text-3xl font-orbitron font-bold mt-2 text-amber-400">--</h3>
-            </div>
-            <div class="bg-cyber-card border border-cyber-border rounded-xl p-5 glow-red">
-                <p class="text-xs font-mono text-slate-400">CRITICAL THREATS</p>
-                <h3 id="stat-critical" class="text-3xl font-orbitron font-bold mt-2 text-red-500">--</h3>
-            </div>
-        </div>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
-        <!-- Live Seismic Feed Console -->
-        <div class="bg-cyber-card border border-cyber-border rounded-xl overflow-hidden shadow-2xl">
-            <div class="p-5 border-b border-cyber-border flex justify-between items-center bg-slate-900/40">
-                <div>
-                    <h2 class="font-orbitron font-bold text-lg text-slate-200">SEISMIC CLASSIFICATION FEED</h2>
-                    <p class="text-xs text-slate-400">Real-time classification stream synchronized from PostgreSQL database</p>
+        <!-- Page introduction -->
+        <section class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="w-6 h-px bg-cyan-400"></span>
+                    <span class="section-label text-cyan-400">Mission Control / Earth Monitoring</span>
                 </div>
-                <button onclick="fetchData()" class="px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-mono transition">
-                    [ REFRESH TELEMETRY ]
-                </button>
+
+                <h2 class="font-orbitron text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
+                    Seismic Threat
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
+                        Intelligence
+                    </span>
+                </h2>
+
+                <p class="text-slate-400 text-sm mt-3 max-w-xl leading-relaxed">
+                    Global earthquake monitoring, event classification, and seismic telemetry
+                    powered by your ETL pipeline and AI classification engine.
+                </p>
             </div>
+
+            <div class="flex flex-col sm:items-end gap-2">
+                <span class="section-label">System Clock / Local Time</span>
+                <div id="system-clock" class="font-orbitron text-lg text-slate-200 tabular-nums">
+                    --:--:--
+                </div>
+                <div class="flex items-center gap-2 text-xs text-slate-500">
+                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                    <span id="last-updated">Awaiting first telemetry sync</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Metrics -->
+        <section aria-label="Earthquake statistics" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+            <article class="metric-card" style="--accent:#22d3ee;--glow:rgba(6,182,212,.15);--icon-bg:rgba(6,182,212,.1);--icon-border:rgba(6,182,212,.2)">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="section-label">Total Monitored Events</p>
+                        <h3 id="stat-total" class="metric-value font-orbitron text-3xl font-bold mt-4 text-cyan-300" aria-live="polite">--</h3>
+                    </div>
+                    <div class="metric-icon">
+                        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                            <path d="M3 12h4l3-8 4 16 3-8h4"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-5 flex justify-between items-center">
+                    <span class="text-xs text-slate-500">Events in database</span>
+                    <span class="text-[10px] text-cyan-400 font-mono">LIVE DATA</span>
+                </div>
+            </article>
+
+            <article class="metric-card" style="--accent:#34d399;--glow:rgba(16,185,129,.13);--icon-bg:rgba(16,185,129,.1);--icon-border:rgba(16,185,129,.2)">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="section-label">Mean Magnitude</p>
+                        <h3 id="stat-avg" class="metric-value font-orbitron text-3xl font-bold mt-4 text-emerald-300" aria-live="polite">--</h3>
+                    </div>
+                    <div class="metric-icon">
+                        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                            <path d="M12 3v18M3 12h18"/>
+                            <circle cx="12" cy="12" r="8"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-5 flex justify-between items-center">
+                    <span class="text-xs text-slate-500">Average event magnitude</span>
+                    <span class="text-[10px] text-emerald-400 font-mono">ANALYTICS</span>
+                </div>
+            </article>
+
+            <article class="metric-card" style="--accent:#fbbf24;--glow:rgba(245,158,11,.12);--icon-bg:rgba(245,158,11,.1);--icon-border:rgba(245,158,11,.2)">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="section-label">Peak Magnitude</p>
+                        <h3 id="stat-max" class="metric-value font-orbitron text-3xl font-bold mt-4 text-amber-300" aria-live="polite">--</h3>
+                    </div>
+                    <div class="metric-icon">
+                        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                            <path d="m3 17 6-6 4 4 8-9"/>
+                            <path d="M15 6h6v6"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-5 flex justify-between items-center">
+                    <span class="text-xs text-slate-500">Highest recorded magnitude</span>
+                    <span class="text-[10px] text-amber-400 font-mono">PEAK EVENT</span>
+                </div>
+            </article>
+
+            <article class="metric-card" style="--accent:#f87171;--glow:rgba(239,68,68,.14);--icon-bg:rgba(239,68,68,.1);--icon-border:rgba(239,68,68,.2)">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="section-label">Critical Threats</p>
+                        <h3 id="stat-critical" class="metric-value font-orbitron text-3xl font-bold mt-4 text-red-400" aria-live="polite">--</h3>
+                    </div>
+                    <div class="metric-icon">
+                        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                            <path d="M12 3 2.8 20h18.4L12 3Z"/>
+                            <path d="M12 9v5m0 3h.01"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-5 flex justify-between items-center">
+                    <span class="text-xs text-slate-500">Classified critical events</span>
+                    <span class="text-[10px] text-red-400 font-mono">PRIORITY</span>
+                </div>
+            </article>
+
+        </section>
+
+        <!-- Feed -->
+        <section class="table-shell">
+
+            <div class="table-head p-5 sm:p-6 border-b border-slate-800/80">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-5">
+
+                    <div class="flex items-center gap-4">
+                        <div class="hidden sm:flex items-center justify-center w-11 h-11 rounded-xl border border-cyan-500/20 bg-cyan-500/[0.06]">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.6" aria-hidden="true">
+                                <path d="M2 12h4l3-8 4 16 3-8h6"/>
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <h2 class="font-orbitron font-bold text-base sm:text-lg text-slate-100">
+                                    Seismic Classification Feed
+                                </h2>
+                                <span class="text-[9px] font-mono tracking-wider text-cyan-400 border border-cyan-500/20 bg-cyan-500/[0.05] rounded px-2 py-1">
+                                    DATABASE STREAM
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">
+                                Classified seismic events retrieved from the backend API
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="hidden sm:block text-right">
+                            <p class="section-label">Refresh Interval</p>
+                            <p class="text-xs font-mono text-slate-300 mt-1">15 SECONDS</p>
+                        </div>
+
+                        <button id="refresh-button" type="button" onclick="fetchData(true)" class="refresh-btn flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-cyan-300 text-xs font-mono tracking-wider">
+                            <svg class="refresh-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M20 7v5h-5M4 17v-5h5"/>
+                                <path d="M5.6 9a7 7 0 0 1 11.8-2L20 12M4 12l2.6 5a7 7 0 0 0 11.8-2"/>
+                            </svg>
+                            REFRESH TELEMETRY
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="status-dot"></span>
+                        <span class="text-[10px] text-slate-400 font-mono">MONITORING ACTIVE</span>
+                    </div>
+                    <p class="text-[10px] text-slate-500 font-mono">
+                        DISPLAY LIMIT: <span class="text-cyan-400">30 EVENTS</span>
+                    </p>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse min-w-[780px]">
                     <thead>
-                        <tr class="border-b border-cyber-border text-xs font-mono text-slate-400 bg-slate-950/50">
-                            <th class="p-4">EVENT TIMESTAMP (UTC)</th>
-                            <th class="p-4">LOCATION DESCRIPTION</th>
-                            <th class="p-4">MAGNITUDE</th>
-                            <th class="p-4">DEPTH (KM)</th>
-                            <th class="p-4">AI CLASSIFICATION</th>
+                        <tr class="bg-slate-950/60 border-b border-slate-800 text-[10px] uppercase tracking-wider font-mono text-slate-500">
+                            <th class="p-4 pl-6 font-medium">Timestamp (UTC)</th>
+                            <th class="p-4 font-medium">Location</th>
+                            <th class="p-4 font-medium">Magnitude</th>
+                            <th class="p-4 font-medium">Depth (KM)</th>
+                            <th class="p-4 pr-6 font-medium">AI Classification</th>
                         </tr>
                     </thead>
-                    <tbody id="earthquake-table-body" class="divide-y divide-cyber-border text-sm font-mono">
+
+                    <tbody id="earthquake-table-body" class="divide-y divide-slate-800/60 text-sm font-mono">
                         <tr>
-                            <td colspan="5" class="p-8 text-center text-slate-500 animate-pulse">Loading telemetry feed from engine API...</td>
+                            <td colspan="5" class="p-12 text-center">
+                                <div class="loader"></div>
+                                <p class="text-xs text-cyan-300 tracking-wider">INITIALIZING TELEMETRY</p>
+                                <p class="text-[10px] text-slate-500 mt-2">Connecting to seismic intelligence engine...</p>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
+
+            <div class="px-5 sm:px-6 py-4 border-t border-slate-800/70 flex flex-col sm:flex-row justify-between gap-2 text-[10px] font-mono text-slate-500">
+                <span>SEISMOAI // EVENT INTELLIGENCE ENGINE</span>
+                <span id="event-count">AWAITING DATA</span>
+            </div>
+        </section>
+
+        <!-- Legend -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="rounded-xl border border-slate-800/80 bg-slate-900/30 p-4 flex items-start gap-3">
+                <span class="classification critical">CRITICAL THREAT</span>
+                <p class="text-xs text-slate-400 leading-relaxed">Highest-priority category assigned by your classifier.</p>
+            </div>
+
+            <div class="rounded-xl border border-slate-800/80 bg-slate-900/30 p-4 flex items-start gap-3">
+                <span class="classification warning">HIGH WARNING</span>
+                <p class="text-xs text-slate-400 leading-relaxed">Elevated classification requiring additional attention.</p>
+            </div>
+
+            <div class="rounded-xl border border-slate-800/80 bg-slate-900/30 p-4 flex items-start gap-3">
+                <span class="classification elevated">ELEVATED</span>
+                <p class="text-xs text-slate-400 leading-relaxed">Event classified above the baseline category.</p>
+            </div>
+        </section>
+
+        <footer class="pt-2 pb-8">
+            <div class="footer-line mb-5"></div>
+            <div class="flex flex-col sm:flex-row justify-between gap-3 text-[10px] font-mono text-slate-600">
+                <span>SEISMOAI © 2026 // GLOBAL SEISMIC MONITORING</span>
+                <span>DATA: BACKEND API / CLASSIFICATION: YOUR AI PIPELINE</span>
+            </div>
+            <p class="text-[10px] text-slate-600 mt-3 leading-relaxed max-w-3xl">
+                Classifications displayed here reflect your project's configured rules.
+                They are not official emergency alerts or predictions of future earthquakes.
+                For public safety information, consult your local geological agency.
+            </p>
+        </footer>
+
     </main>
 
-    <!-- Script Connector -->
     <script>
-        const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://seismo-ai-3.onrender.com';
-        async function fetchData() {
-            try {
-                // Fetch stats
-                const statsRes = await fetch(`${API_BASE_URL}/api/stats`);
-                const stats = await statsRes.json();
-                if (stats) {
-                    document.getElementById('stat-total').innerText = stats.total_events || 0;
-                    document.getElementById('stat-avg').innerText = stats.avg_magnitude || 0.0;
-                    document.getElementById('stat-max').innerText = stats.max_magnitude || 0.0;
-                    document.getElementById('stat-critical').innerText = stats.critical_count || 0;
-                }
+        // Keep your existing deployment endpoints.
+        const API_BASE_URL = window.location.hostname === 'localhost'
+            ? 'http://localhost:8000'
+            : 'https://seismo-ai-3.onrender.com';
 
-                // Fetch earthquakes
-                const eqRes = await fetch(`${API_BASE_URL}/api/earthquakes?limit=30`);
-                const result = await eqRes.json();
-                const tbody = document.getElementById('earthquake-table-body');
-                
-                if (!result.data || result.data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">No telemetry data available. Run the ETL pipeline.</td></tr>`;
-                    return;
-                }
+        const REFRESH_INTERVAL = 15000;
+        let isFetching = false;
+        let lastSuccessfulSync = null;
 
-                tbody.innerHTML = result.data.map(eq => {
-                    const dateStr = new Date(eq.time).toISOString().replace('T', ' ').substring(0, 19);
-                    let badgeClass = "bg-slate-800 text-slate-300 border-slate-700";
-                    if (eq.classification === 'CRITICAL THREAT') badgeClass = "bg-red-950/80 text-red-400 border-red-500/40 animate-pulse-slow";
-                    else if (eq.classification === 'HIGH WARNING') badgeClass = "bg-amber-950/80 text-amber-400 border-amber-500/40";
-                    else if (eq.classification === 'ELEVATED') badgeClass = "bg-cyan-950/80 text-cyan-400 border-cyan-500/40";
+        const $ = (id) => document.getElementById(id);
 
-                    return `
-                        <tr class="hover:bg-slate-900/50 transition">
-                            <td class="p-4 text-slate-400 text-xs">${dateStr}</td>
-                            <td class="p-4 text-slate-200 font-sans font-medium">${eq.place || 'Unknown Location'}</td>
-                            <td class="p-4 font-bold text-cyan-400">${eq.magnitude !== null ? eq.magnitude.toFixed(1) : 'N/A'}</td>
-                            <td class="p-4 text-slate-400">${eq.depth !== null ? eq.depth.toFixed(1) : 'N/A'}</td>
-                            <td class="p-4">
-                                <span class="px-2.5 py-1 rounded-full text-xs font-mono border ${badgeClass}">
-                                    ${eq.classification}
-                                </span>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } catch (err) {
-                console.error("Failed to connect to SeismoAI Backend API:", err);
-                document.getElementById('connection-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span><span class="text-red-400">TELEMETRY LINK OFFLINE</span>`;
+        // Escape API text before inserting it into HTML.
+        function escapeHTML(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[char]);
+        }
+
+        function formatNumber(value, digits = 0) {
+            const number = Number(value);
+            if (!Number.isFinite(number)) return digits ? '0.0' : '0';
+
+            return number.toLocaleString('en-US', {
+                minimumFractionDigits: digits,
+                maximumFractionDigits: digits
+            });
+        }
+
+        function updateMetric(id, value) {
+            const element = $(id);
+            const next = String(value);
+
+            if (element.textContent !== next) {
+                element.textContent = next;
+                element.classList.remove('updated');
+
+                // Restart the small number-change animation.
+                void element.offsetWidth;
+                element.classList.add('updated');
             }
         }
 
-        // Initialize polling
+        function setConnectionStatus(online, message) {
+            const badge = $('connection-status');
+            const dot = badge.querySelector('.status-dot');
+
+            badge.classList.toggle('offline', !online);
+            badge.classList.toggle('text-emerald-400', online);
+            badge.classList.toggle('text-red-400', !online);
+
+            dot.style.background = online ? '#34d399' : '#f87171';
+            dot.style.boxShadow = online
+                ? '0 0 12px rgba(52,211,153,.9)'
+                : '0 0 12px rgba(239,68,68,.8)';
+
+            $('connection-label').textContent = message;
+        }
+
+        function classificationDetails(classification) {
+            const normalized = String(classification ?? '').trim().toUpperCase();
+
+            if (normalized === 'CRITICAL THREAT') {
+                return { label: 'CRITICAL THREAT', css: 'critical' };
+            }
+
+            if (normalized === 'HIGH WARNING') {
+                return { label: 'HIGH WARNING', css: 'warning' };
+            }
+
+            if (normalized === 'ELEVATED') {
+                return { label: 'ELEVATED', css: 'elevated' };
+            }
+
+            return {
+                label: normalized || 'UNCLASSIFIED',
+                css: 'normal'
+            };
+        }
+
+        function formatTimestamp(value) {
+            if (!value) return 'N/A';
+
+            const date = new Date(value);
+
+            if (Number.isNaN(date.getTime())) return 'N/A';
+
+            // UTC display, independent of the browser's local timezone.
+            return date.toISOString().replace('T', ' ').slice(0, 19);
+        }
+
+        function renderEarthquakes(events) {
+            const tbody = $('earthquake-table-body');
+
+            if (!Array.isArray(events) || events.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="p-12 text-center">
+                            <p class="text-sm text-slate-300">No seismic events available.</p>
+                            <p class="text-xs text-slate-500 mt-2">
+                                Check whether your ETL pipeline has populated the database.
+                            </p>
+                        </td>
+                    </tr>
+                `;
+
+                $('event-count').textContent = '0 EVENTS RETURNED';
+                return;
+            }
+
+            // Construct DOM nodes instead of inserting untrusted API strings as HTML.
+            const fragment = document.createDocumentFragment();
+
+            events.forEach((eq, index) => {
+                const tr = document.createElement('tr');
+                tr.style.animationDelay = `${Math.min(index, 12) * 25}ms`;
+
+                const magnitude = Number(eq.magnitude);
+                const depth = Number(eq.depth);
+                const validMagnitude = eq.magnitude != null && Number.isFinite(magnitude);
+                const validDepth = eq.depth != null && Number.isFinite(depth);
+                const details = classificationDetails(eq.classification);
+
+                const magnitudeColor = !validMagnitude
+                    ? '#94a3b8'
+                    : magnitude >= 6
+                        ? '#f87171'
+                        : magnitude >= 4
+                            ? '#fbbf24'
+                            : '#67e8f9';
+
+                // Magnitude bar is only a visual representation of the recorded value.
+                const barWidth = validMagnitude
+                    ? Math.max(0, Math.min(100, (magnitude / 10) * 100))
+                    : 0;
+
+                const cells = [
+                    `<td class="p-4 pl-6 text-slate-500 text-xs whitespace-nowrap">${escapeHTML(formatTimestamp(eq.time))}</td>`,
+                    `<td class="p-4 text-slate-200 font-sans font-medium">${escapeHTML(eq.place || 'Unknown Location')}</td>`,
+                    `<td class="p-4">
+                        <div class="magnitude" style="color:${magnitudeColor}">
+                            <span>${validMagnitude ? formatNumber(magnitude, 1) : 'N/A'}</span>
+                            ${validMagnitude ? `<span class="mag-bar"><span style="width:${barWidth}%;background:${magnitudeColor}"></span></span>` : ''}
+                        </div>
+                    </td>`,
+                    `<td class="p-4 text-slate-400">${validDepth ? formatNumber(depth, 1) : 'N/A'}</td>`,
+                    `<td class="p-4 pr-6"><span class="classification ${details.css}">${escapeHTML(details.label)}</span></td>`
+                ];
+
+                // Cell content is generated from escaped values and fixed markup.
+                tr.innerHTML = cells.join('');
+                fragment.appendChild(tr);
+            });
+
+            tbody.replaceChildren(fragment);
+            $('event-count').textContent = `${events.length} EVENTS RETURNED`;
+        }
+
+        async function fetchData(manual = false) {
+            if (isFetching) return;
+
+            isFetching = true;
+            const button = $('refresh-button');
+
+            button.classList.add('loading');
+            button.disabled = true;
+            button.style.opacity = '.65';
+
+            try {
+                // Load stats and events together to reduce total wait time.
+                const [statsResponse, eventsResponse] = await Promise.all([
+                    fetch(`${API_BASE_URL}/api/stats`, {
+                        headers: { Accept: 'application/json' }
+                    }),
+                    fetch(`${API_BASE_URL}/api/earthquakes?limit=30`, {
+                        headers: { Accept: 'application/json' }
+                    })
+                ]);
+
+                if (!statsResponse.ok) {
+                    throw new Error(`Stats API returned HTTP ${statsResponse.status}`);
+                }
+
+                if (!eventsResponse.ok) {
+                    throw new Error(`Earthquake API returned HTTP ${eventsResponse.status}`);
+                }
+
+                const [stats, result] = await Promise.all([
+                    statsResponse.json(),
+                    eventsResponse.json()
+                ]);
+
+                updateMetric('stat-total', formatNumber(stats.total_events));
+                updateMetric('stat-avg', formatNumber(stats.avg_magnitude, 2));
+                updateMetric('stat-max', formatNumber(stats.max_magnitude, 1));
+                updateMetric('stat-critical', formatNumber(stats.critical_count));
+
+                renderEarthquakes(result.data);
+
+                lastSuccessfulSync = new Date();
+                setConnectionStatus(true, 'NEURAL LINK ACTIVE');
+                $('last-updated').textContent =
+                    `Last sync: ${lastSuccessfulSync.toLocaleTimeString()}`;
+
+            } catch (error) {
+                console.error('SeismoAI telemetry error:', error);
+
+                setConnectionStatus(false, 'TELEMETRY LINK OFFLINE');
+                $('last-updated').textContent = 'Unable to synchronize with the backend';
+
+                // Preserve previously loaded data if a refresh fails.
+                if (!$('earthquake-table-body').querySelector('tr')) {
+                    $('earthquake-table-body').innerHTML = `
+                        <tr>
+                            <td colspan="5" class="p-10 text-center">
+                                <p class="text-red-400 text-sm">Backend connection failed.</p>
+                                <p class="text-xs text-slate-500 mt-2">
+                                    Verify the API URL, backend availability, and CORS configuration.
+                                </p>
+                                <button onclick="fetchData(true)" class="refresh-btn mt-4 px-4 py-2 rounded text-xs text-cyan-300">
+                                    RETRY CONNECTION
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            } finally {
+                isFetching = false;
+                button.classList.remove('loading');
+                button.disabled = false;
+                button.style.opacity = '1';
+            }
+        }
+
+        // Live local clock, updated every second.
+        function updateClock() {
+            $('system-clock').textContent = new Date().toLocaleTimeString(
+                'en-GB',
+                { hour12: false }
+            );
+        }
+
+        // Cursor-following card glow.
+        document.querySelectorAll('.metric-card').forEach((card) => {
+            card.addEventListener('pointermove', (event) => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--mx', `${event.clientX - rect.left}px`);
+                card.style.setProperty('--my', `${event.clientY - rect.top}px`);
+            });
+        });
+
+        // Initial connection and automatic polling.
+        updateClock();
+        setInterval(updateClock, 1000);
+
         fetchData();
-        setInterval(fetchData, 15000);
+        setInterval(() => fetchData(false), REFRESH_INTERVAL);
     </script>
 </body>
 </html>
+```
