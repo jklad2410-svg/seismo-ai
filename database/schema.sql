@@ -1,0 +1,36 @@
+CREATE TABLE IF NOT EXISTS earthquakes (
+    id VARCHAR(50) PRIMARY KEY,
+    title VARCHAR(255),
+    magnitude FLOAT,
+    place VARCHAR(255),
+    time BIGINT,
+    updated BIGINT,
+    url TEXT,
+    detail TEXT,
+    felt INT,
+    cdi FLOAT,
+    mmi FLOAT,
+    alert VARCHAR(50),
+    status VARCHAR(50),
+    tsunami INT,
+    sig INT,
+    net VARCHAR(50),
+    code VARCHAR(50),
+    ids VARCHAR(255),
+    sources VARCHAR(255),
+    types VARCHAR(255),
+    nst INT,
+    dmin FLOAT,
+    rms FLOAT,
+    gap FLOAT,
+    mag_type VARCHAR(20),
+    type VARCHAR(50),
+    longitude FLOAT,
+    latitude FLOAT,
+    depth FLOAT,
+    classification VARCHAR(50) DEFAULT 'NORMAL MONITOR',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_earthquakes_time ON earthquakes(time DESC);
+CREATE INDEX IF NOT EXISTS idx_earthquakes_magnitude ON earthquakes(magnitude DESC);
